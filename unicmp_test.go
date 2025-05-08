@@ -50,4 +50,10 @@ func TestSmoke(t *testing.T) {
 	if !slices.Equal(s1, s2) {
 		t.Error("s1 content is not the same as s2 after sorting")
 	}
+	for _, x := range orig {
+		if _, found := slices.BinarySearchFunc(s1, x, o.Cmp); !found {
+			t.Error("value was not found with bisect in s1")
+			break
+		}
+	}
 }
