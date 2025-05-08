@@ -94,3 +94,19 @@ func TestAny(t *testing.T) {
 		t.Errorf("second same struct not found in slice")
 	}
 }
+
+var result int
+
+func BenchmarkWorstCase(b *testing.B) {
+	var (
+		r int
+		x *int
+		y *float32
+	)
+	o := ForType[any]()
+	b.ResetTimer()
+	for i:=0; i<b.N; i++ {
+		r = o.Cmp(x, y)
+	}
+	result = r
+}

@@ -11,7 +11,7 @@ import (
 	"github.com/Snawoot/maphash"
 )
 
-const maxRounds = 50
+const maxRounds = 10
 
 // Ordering is an instance of ordering hasher. All Ordering methods are safe for
 // concurrent use.
