@@ -27,3 +27,11 @@ func (o Ordering[T]) Cmp(x, y T) int {
 	}
 	return cmp.Compare(h1, h2)
 }
+
+func (o Ordering[T]) Less(x, y T) bool {
+	return o.Cmp(x, y) < 0
+}
+
+func (o Ordering[T]) Equal(x, y T) bool {
+	return o.Cmp(x, y) == 0
+}
