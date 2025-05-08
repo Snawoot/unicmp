@@ -22,7 +22,7 @@ func sum(s []byte) int {
 	return sum
 }
 
-func shuffle(s []byte) {
+func shuffle[S ~[]T, T any](s S) {
 	rand.Shuffle(len(s), func(i, j int) {
 		s[i], s[j] = s[j], s[i]
 	})
@@ -55,5 +55,42 @@ func TestSmoke(t *testing.T) {
 			t.Error("value was not found with bisect in s1")
 			break
 		}
+	}
+}
+
+func TestAny(t *testing.T) {
+	numbers := randBytes(10000)
+	a := make([]any, 0, len(numbers)+3)
+	for _, x := range numbers {
+		a = append(a, x)
+	}
+	a = append(a, struct {
+		a int
+		b string
+	}{123, "abcdef"})
+	a = append(a, struct {
+		a int
+		b string
+	}{123, "abcdef"})
+	a = append(a, struct {
+		a int
+		b string
+	}{100, "!!!!!!!!!!!!"})
+	shuffle(a)
+	o := ForType[any]()
+	slices.SortFunc(a, o.Cmp)
+	idx := slices.Index[[]any, any](a, struct{
+		a int
+		b string
+	}{123, "abcdef"})
+	if idx == -1 {
+		t.Errorf("struct not found in slice")
+		return
+	}
+	if a[idx+1] != struct{
+		a int
+		b string
+	}{123, "abcdef"} {
+		t.Errorf("second same struct not found in slice")
 	}
 }
