@@ -44,14 +44,13 @@ func TestSmoke(t *testing.T) {
 			t.Fatalf("sum(s1) != sum(orig): %d != %d", a, c)
 		}
 	}
-	o := ForType[byte]()
-	slices.SortFunc(s1, o.Cmp)
-	slices.SortFunc(s2, o.Cmp)
+	slices.SortFunc(s1, Cmp)
+	slices.SortFunc(s2, Cmp)
 	if !slices.Equal(s1, s2) {
 		t.Error("s1 content is not the same as s2 after sorting")
 	}
 	for _, x := range orig {
-		if _, found := slices.BinarySearchFunc(s1, x, o.Cmp); !found {
+		if _, found := slices.BinarySearchFunc(s1, x, Cmp); !found {
 			t.Error("value was not found with bisect in s1")
 			break
 		}
@@ -77,8 +76,7 @@ func TestAny(t *testing.T) {
 		b string
 	}{100, "!!!!!!!!!!!!"})
 	shuffle(a)
-	o := ForType[any]()
-	slices.SortFunc(a, o.Cmp)
+	slices.SortFunc(a, Cmp)
 	idx := slices.Index[[]any, any](a, struct{
 		a int
 		b string
@@ -103,10 +101,9 @@ func BenchmarkWorstCase(b *testing.B) {
 		x *int
 		y *float32
 	)
-	o := ForType[any]()
 	b.ResetTimer()
 	for i:=0; i<b.N; i++ {
-		r = o.Cmp(x, y)
+		r = Cmp[any](x, y)
 	}
 	result = r
 }
