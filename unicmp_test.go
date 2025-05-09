@@ -1,6 +1,7 @@
 package unicmp
 
 import (
+	"cmp"
 	"fmt"
 	"math/rand/v2"
 	"slices"
@@ -113,6 +114,24 @@ func BenchmarkWorstCase(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		r = Cmp[any](x, y)
+	}
+	result = r
+}
+
+func BenchmarkBestCase(b *testing.B) {
+	var r int
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r = Cmp(1, 2)
+	}
+	result = r
+}
+
+func BenchmarkSimpleCmp(b *testing.B) {
+	var r int
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r = cmp.Compare(1, 2)
 	}
 	result = r
 }
