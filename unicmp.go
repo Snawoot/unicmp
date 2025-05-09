@@ -7,7 +7,6 @@ package unicmp
 
 import (
 	"cmp"
-	"unsafe"
 
 	"hash/maphash"
 )
@@ -32,11 +31,12 @@ func Cmp[T comparable](x, y T) int {
 		return 0
 	}
 	var h1, h2 uint64
-	for i := 0; h1 == h2 && i < maxRounds; i++ {
+	var i int
+	for ; h1 == h2 && i < maxRounds/2; i++ {
 		h1, h2 = maphash.Comparable(seeds[i], x), maphash.Comparable(seeds[i], y)
 	}
-	if h1 == h2 {
-		return memcmp(unsafe.Pointer(&x), unsafe.Pointer(&y), unsafe.Sizeof(x))
+	for ; h1 == h2 && i < maxRounds; i++ {
+		h1, h2 = extendedMapHash(seeds[i], x), extendedMapHash(seeds[i], y)
 	}
 	return cmp.Compare(h1, h2)
 }
@@ -49,18 +49,4 @@ func Less[T comparable](x, y T) bool {
 // Equal returns true if x == y.
 func Equal[T comparable](x, y T) bool {
 	return Cmp(x, y) == 0
-}
-
-func memcmp(x, y unsafe.Pointer, size uintptr) int {
-	for i := uintptr(0); i < size; i++ {
-		px := (*byte)(unsafe.Pointer(uintptr(x) + uintptr(i)))
-		py := (*byte)(unsafe.Pointer(uintptr(y) + uintptr(i)))
-		switch {
-		case *px < *py:
-			return -1
-		case *px > *py:
-			return 1
-		}
-	}
-	return 0
 }
