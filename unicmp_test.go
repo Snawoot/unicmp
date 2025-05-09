@@ -1,6 +1,7 @@
 package unicmp
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"slices"
 	"testing"
@@ -114,4 +115,33 @@ func BenchmarkWorstCase(b *testing.B) {
 		r = Cmp[any](x, y)
 	}
 	result = r
+}
+
+type Bar struct {
+	msg string
+}
+
+func (b *Bar) Xf() {
+}
+
+type Foo struct {
+	X, Y, Z float64
+}
+
+func (f *Foo) Xf() {
+	fmt.Println("X called")
+}
+
+type Xer interface {
+	Xf()
+}
+
+func TestAny3(t *testing.T) {
+	var f1 *Foo
+	x1 := Xer(f1)
+	var b1 *Bar
+	x2 := Xer(b1)
+	if Cmp(x1, x2) == 0 {
+		t.Error("type-specific nil-values of interface value are equal!")
+	}
 }
