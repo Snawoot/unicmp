@@ -77,7 +77,7 @@ func TestAny(t *testing.T) {
 	}{100, "!!!!!!!!!!!!"})
 	shuffle(a)
 	slices.SortFunc(a, Cmp)
-	idx := slices.Index[[]any, any](a, struct{
+	idx := slices.Index[[]any, any](a, struct {
 		a int
 		b string
 	}{123, "abcdef"})
@@ -85,11 +85,19 @@ func TestAny(t *testing.T) {
 		t.Errorf("struct not found in slice")
 		return
 	}
-	if a[idx+1] != struct{
+	if a[idx+1] != struct {
 		a int
 		b string
 	}{123, "abcdef"} {
 		t.Errorf("second same struct not found in slice")
+	}
+}
+
+func TestAny2(t *testing.T) {
+	var x *int
+	var y *byte
+	if Cmp[any](x, y) == 0 {
+		t.Error("any(*int(nil)) == any(*byte(nil))")
 	}
 }
 
@@ -102,7 +110,7 @@ func BenchmarkWorstCase(b *testing.B) {
 		y *float32
 	)
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		r = Cmp[any](x, y)
 	}
 	result = r
