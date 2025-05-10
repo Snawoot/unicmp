@@ -40,7 +40,6 @@ func writeComparable[T comparable](h *emaphash, v T) {
 func (h *emaphash) appendT(v reflect.Value) {
 	h.WriteString(v.Type().String())
 	h.WriteByte(0)
-	defer h.WriteByte(0)
 	switch v.Kind() {
 	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
 		var buf [8]byte
@@ -53,23 +52,19 @@ func (h *emaphash) appendT(v reflect.Value) {
 		h.Write(buf[:])
 		return
 	case reflect.Array:
-		var buf [8]byte
 		for i := range uint64(v.Len()) {
-			binary.LittleEndian.PutUint64(buf[:], i)
-			h.Write(buf[:])
 			h.appendT(v.Index(int(i)))
 		}
 		return
 	case reflect.String:
+		var buf [8]byte
+		binary.LittleEndian.PutUint64(buf[:], uint64(v.Len()))
+		h.Write(buf[:])
 		h.WriteString(v.String())
 		return
 	case reflect.Struct:
-		var buf [8]byte
 		for i := range v.NumField() {
-			f := v.Field(i)
-			binary.LittleEndian.PutUint64(buf[:], uint64(i))
-			h.Write(buf[:])
-			h.appendT(f)
+			h.appendT(v.Field(i))
 		}
 		return
 	case reflect.Complex64, reflect.Complex128:
