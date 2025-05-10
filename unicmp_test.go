@@ -3,6 +3,7 @@ package unicmp
 import (
 	"cmp"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"slices"
 	"testing"
@@ -162,5 +163,17 @@ func TestAny3(t *testing.T) {
 	x2 := Xer(b1)
 	if Cmp(x1, x2) == 0 {
 		t.Error("type-specific nil-values of interface value are equal!")
+	}
+}
+
+func TestNaN(t *testing.T) {
+	type s struct {
+		f float64
+	}
+	if Cmp(math.NaN(), math.NaN()) != 0 {
+		t.Error("NaN != NaN")
+	}
+	if Cmp(s{math.NaN()}, s{math.NaN()}) != 0 {
+		t.Error("NaN != NaN")
 	}
 }

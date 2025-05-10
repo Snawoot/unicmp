@@ -32,8 +32,11 @@ func Cmp[T comparable](x, y T) int {
 	}
 	var h1, h2 uint64
 	var i int
-	for ; h1 == h2 && i < maxRounds/2; i++ {
-		h1, h2 = maphash.Comparable(seeds[i], x), maphash.Comparable(seeds[i], y)
+	if x == x && y == y {
+		// NaN is not involved
+		for ; h1 == h2 && i < maxRounds/2; i++ {
+			h1, h2 = maphash.Comparable(seeds[i], x), maphash.Comparable(seeds[i], y)
+		}
 	}
 	for ; h1 == h2 && i < maxRounds; i++ {
 		h1, h2 = extendedMapHash(seeds[i], x), extendedMapHash(seeds[i], y)
