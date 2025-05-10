@@ -11,7 +11,7 @@ import (
 	"hash/maphash"
 )
 
-const maxRounds = 8
+const maxRounds = 64
 
 var seeds [maxRounds]maphash.Seed
 
@@ -19,6 +19,10 @@ func init() {
 	for i := range seeds {
 		seeds[i] = maphash.MakeSeed()
 	}
+}
+
+func needsReflection[T comparable](x T) bool {
+	return x != x
 }
 
 // Cmp returns
@@ -32,19 +36,20 @@ func Cmp[T comparable](x, y T) int {
 	}
 	var h1, h2 uint64
 	var i int
-	f1, f2 := maphash.Comparable[T], maphash.Comparable[T]
-	if x != x {
-		f1 = extendedMapHash[T]
+	fxEven, fyEven := maphash.Comparable[T], maphash.Comparable[T]
+	fxOdd, fyOdd := extendedMapHash[T], extendedMapHash[T]
+	if needsReflection(x) {
+		fxEven = extendedMapHash[T]
 	}
-	if y != y {
-		f2 = extendedMapHash[T]
+	if needsReflection(y) {
+		fyEven = extendedMapHash[T]
 	}
-	for ; h1 == h2 && i < maxRounds/2; i++ {
-		h1, h2 = f1(seeds[i], x), f2(seeds[i], y)
-	}
-	f1, f2 = extendedMapHash[T], extendedMapHash[T]
 	for ; h1 == h2 && i < maxRounds; i++ {
-		h1, h2 = f1(seeds[i], x), f2(seeds[i], y)
+		if i%2 == 0 {
+			h1, h2 = fxEven(seeds[i], x), fyEven(seeds[i], y)
+		} else {
+			h1, h2 = fxOdd(seeds[i], x), fyOdd(seeds[i], y)
+		}
 	}
 	return cmp.Compare(h1, h2)
 }
