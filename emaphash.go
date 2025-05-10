@@ -71,10 +71,8 @@ func (h *emaphash) appendT(v reflect.Value) {
 		h.float64(v.Float())
 	case reflect.Bool:
 		h.WriteByte(btoi(v.Bool()))
-	case reflect.UnsafePointer, reflect.Pointer:
-		var buf [8]byte
-		binary.LittleEndian.PutUint64(buf[:], uint64(v.Pointer()))
-		h.Write(buf[:])
+	case reflect.UnsafePointer, reflect.Pointer, reflect.Chan:
+		h.uint64(uint64(v.Pointer()))
 	case reflect.Interface:
 		h.appendT(v.Elem())
 	default:

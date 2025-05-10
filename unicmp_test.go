@@ -177,3 +177,28 @@ func TestNaN(t *testing.T) {
 		t.Error("NaN != NaN")
 	}
 }
+
+func TestChannels(t *testing.T) {
+	c1, c2 := make(chan struct{}), make(chan struct{})
+	if c1 == c2 {
+		t.Error("c1 == c2")
+	}
+	if Cmp(c1, c2) == 0 {
+		t.Error("Cmp(c1, c2) == 0")
+	}
+	type s struct {
+		c chan struct{}
+		f float64
+	}
+	nan := math.NaN()
+	s1, s2 := s{c1, nan}, s{c2, nan}
+	if Cmp(s1, s2) == 0 {
+		t.Error("Cmp(s1, s2) == 0")
+	}
+	if Cmp(c1, c1) != 0 {
+		t.Error("Cmp(c1, c1) != 0")
+	}
+	if Cmp(s1, s1) != 0 {
+		t.Error("Cmp(s1, s1) != 0")
+	}
+}
