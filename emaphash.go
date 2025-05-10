@@ -39,6 +39,8 @@ func writeComparable[T comparable](h *emaphash, v T) {
 
 func (h *emaphash) appendT(v reflect.Value) {
 	h.WriteString(v.Type().String())
+	h.WriteByte(0)
+	defer h.WriteByte(0)
 	switch v.Kind() {
 	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
 		var buf [8]byte
